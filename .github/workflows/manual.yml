@@ -1,0 +1,68 @@
+# This is a basic workflow that is manually triggered
+
+name: Publish Node.js Package to GitHub Packages
+
+# Controls when the action will run. Workflow runs when manually triggered using the UI
+# or API.
+on:
+  workflow_dispatch:
+    # Inputs the workflow accepts.
+    inputs:
+      branch:
+        description: 'branch name to publish'
+        # Default value if no value is explicitly provided
+        default: 'master'
+        # Input has to be provided for the workflow to run
+        required: true
+      package:
+        type: choice
+        description: 'package name to publish'
+        default: 'rrweb'
+        options:
+        - rrweb
+        - rrweb-player
+        - rrweb-snapshot
+        - rrdom
+        - ALL
+      platform:
+        type: choice
+        description: 'package platform to publish'
+        default: 'github'
+        options:
+        - github
+        - npm
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          ref: ${{github.event.inputs.branch}}
+          fetch-depth: 0
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16
+          registry-url: 'https://npm.pkg.github.com/'
+#       - run: yarn install
+#       - run: yarn lerna run prepublish
+      - name: 'publish rrweb-snapshot package'
+        if: (github.event.inputs.package == 'rrweb-snapshot') || (github.event.inputs.package == 'ALL')
+        run: cd packages/rrweb-snapshot && pwd && npm config get registry && echo ${{github.event.inputs.platform=='npm' && 'https://registry.npmjs.org/' || 'https://npm.pkg.github.com/'}}
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
+      - name: 'publish rrdom package'
+        if: (github.event.inputs.package == 'rrdom') || (github.event.inputs.package == 'ALL')
+        run: cd packages/rrdom && pwd && npm config get registry
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
+      - name: 'publish rrweb package'
+        if: (github.event.inputs.package == 'rrweb') || (github.event.inputs.package == 'ALL')
+        run: cd packages/rrweb && pwd && npm config get registry
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
+      - name: 'publish rrweb-player package'
+        if: (github.event.inputs.package == 'rrweb-player') || (github.event.inputs.package == 'ALL')
+        run: cd packages/rrweb-player && pwd && npm config get registry
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
