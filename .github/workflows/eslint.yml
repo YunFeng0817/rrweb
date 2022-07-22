@@ -8,7 +8,7 @@ jobs:
     name: ESLint Check and Report Upload
 
     steps:
-      - run: echo ${{ github.event.repository.owner }}
+      - run: echo ${{ github.event.repository.owner.name }}
       - run: echo ${{ github.repository_owner }}
       - uses: actions/checkout@v3
       - name: Setup Node
