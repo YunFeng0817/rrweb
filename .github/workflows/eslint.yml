@@ -8,6 +8,8 @@ jobs:
     name: ESLint Check and Report Upload
 
     steps:
+      - run: echo ${{ github.event.repository }}
+      - run: echo ${{ github.repository }}
       - uses: actions/checkout@v3
       - name: Setup Node
         uses: actions/setup-node@v3
@@ -35,7 +37,7 @@ jobs:
     if: github.repository == 'Mark-Fenng/rrweb'
     runs-on: ubuntu-latest
     steps:
-      - run: echo ${{ github.event.repository.name }}
+      - run: echo ${{ github.event.repository }}
       - uses: actions/checkout@v3
       - uses: actions/download-artifact@v3
         with:
