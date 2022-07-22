@@ -35,9 +35,9 @@ jobs:
           name: eslint_report.json
           path: eslint_report.json
 
-  Annotation:    
+  Annotation:
     needs: eslint_check_upload
-    if: github.repository == 'Mark-Fenng/rrweb'
+    if: github.event.pull_request.head.repo.full_name == 'Mark-Fenng/rrweb'
     runs-on: ubuntu-latest
     steps:
       - run: echo ${{ github.event.repository }}
