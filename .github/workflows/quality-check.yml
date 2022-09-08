@@ -1,6 +1,6 @@
-name: Eslint Check
+name: Quality Check
 
-on: [pull_request, push]
+on: [push, pull_request_target]
 
 jobs:
   eslint_check_upload:
@@ -31,8 +31,8 @@ jobs:
           path: eslint_report.json
 
   Annotation:
-    # Skip the annotation action in PRs from the forked repositories
-    if: github.event.pull_request.head.repo.full_name == 'rrweb-io/rrweb'
+    # Skip the annotation action in push events
+    if: github.event_name == 'pull_request_target'
     needs: eslint_check_upload
     runs-on: ubuntu-latest
     steps:
@@ -45,3 +45,26 @@ jobs:
         with:
           repo-token: '${{ secrets.GITHUB_TOKEN }}'
           report-json: 'eslint_report.json'
+
+  prettier:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
+          ref: ${{ github.head_ref }}
+          fetch-depth: 0
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+          cache: 'yarn'
+      - name: Install Dependencies
+        run: yarn
+      - name: Prettify code
+        run: yarn prettier --write '**/*.{ts,md}'
+      - name: Commit changes
+        uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          commit_message: Apply formatting changes
